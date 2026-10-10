@@ -1,0 +1,779 @@
+<title>Su primer año</title>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@1,500&family=Schoolbell&display=swap">
+<style>
+/* 14 páginas con topes: 1 portada · 2 capítulo primero (dónde y confirmar) · 3–14 un capítulo por mes.
+   Estilo: el libro de 1926 (papel envejecido, tinta sepia, Caslon, viñetas de E. H. Shepard). Nada brillante. */
+:root{
+  --paper:#f3e9d2; --paper-2:#eadfc3; --ink:#2b2118; --sepia:#6b5537; --rule:#b9a57f; --faint:#d9ccab;
+  --red:#a9463a; --gold:#b8933f; --gold-deep:#8a6a1e; --blue:#3b5a78; --veil:#f3e9d2;
+  --f-book:"Libre Caslon Text", "Baskerville", "Times New Roman", serif;
+  --f-hand:"Schoolbell", "Comic Sans MS", cursive; --f-med:"Almendra", "Libre Caslon Text", serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html{scroll-snap-type:y mandatory}
+body{margin:0;background:var(--paper);color:var(--ink);font:17.5px/1.55 var(--f-book);-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+:focus-visible{outline:2px solid var(--sepia);outline-offset:3px}
+button{font:inherit;color:inherit}
+
+/* papel: grano fino y bordes un poco más oscuros, como un libro viejo */
+/* el libro: cada pantalla es una hoja; la actual gira desde el lomo (borde izquierdo) y deja ver la siguiente.
+   Se pasa con un toque, deslizando o con la rueda; hacia atrás, la hoja anterior vuelve a caer */
+body{overflow:hidden;height:100svh}
+.deck{position:fixed;inset:0;perspective:1600px;perspective-origin:50% 50%;overflow:hidden;background:var(--paper)}
+.screen{position:absolute;inset:0;transform-origin:left center;transform-style:preserve-3d;transition:transform 1.15s cubic-bezier(.55,.02,.25,1);will-change:transform}
+.screen.turned{transform:rotateY(-180deg)}
+.screen.far{display:none}
+.screen .front,.screen .back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.screen .back{transform:rotateY(180deg);background:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><g fill='none' stroke='%236b5537' stroke-opacity='.16' stroke-width='1.2'><ellipse cx='30' cy='30' rx='7' ry='5'/><path d='M27 25v10M31 25v10'/><ellipse cx='90' cy='90' rx='7' ry='5'/><path d='M87 85v10M91 85v10'/></g></svg>") 0 0/120px 120px,
+  linear-gradient(270deg,#e3d5b3,var(--paper-2) 12%,var(--paper-2))}
+.screen .shade{position:absolute;inset:0;z-index:8;background:linear-gradient(90deg,rgba(43,33,24,.5),rgba(43,33,24,.12) 45%,rgba(43,33,24,0) 70%);opacity:0;pointer-events:none;transition:opacity 1.15s ease-out}
+.screen.under .shade{opacity:1;transition:none}
+@media (prefers-reduced-motion:reduce){.screen{transition:none}}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:64px 20px 70px;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0 0.08 0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+    radial-gradient(120% 90% at 50% 40%,var(--paper) 55%,#e6d8b6 100%)}
+.inner{width:100%;max-width:420px;display:grid;gap:18px;text-align:center;position:relative;margin:auto;flex:none}
+@keyframes rise{from{opacity:0;transform:translate3d(0,22px,0)}to{opacity:1;transform:none}}
+/* la tapa del libro: tela verde con dorados (como la edición de 1926); se abre al tocarla y arranca la música */
+html.closed{overflow:hidden}
+.book{position:fixed;inset:0;z-index:30;perspective:1500px}
+.book .pshade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(43,33,24,.55),rgba(43,33,24,.15) 35%,rgba(43,33,24,0) 70%);transition:opacity 1.6s ease}
+.book.open .pshade{opacity:0}
+.cover3d{position:absolute;inset:0;transform-origin:left center;transform-style:preserve-3d;transition:transform 2s cubic-bezier(.6,.02,.2,1);cursor:pointer;box-shadow:6px 0 24px rgba(0,0,0,.35)}
+.book.open .cover3d{transform:rotateY(-165deg)}
+.book.open{pointer-events:none}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.front{background:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+  linear-gradient(90deg,#223a2d 0,#2f4d3c 6%,#2b4736 100%);color:#c9a758;display:grid;place-items:center;padding:28px 26px;text-align:center}
+.face.front::before{content:"";position:absolute;inset:22px 20px;border:1.5px solid rgba(201,167,88,.75);outline:1px solid rgba(201,167,88,.35);outline-offset:4px;pointer-events:none}
+.face.front::after{content:"";position:absolute;left:0;top:0;bottom:0;width:14px;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(0,0,0,0));pointer-events:none}
+.gilt{display:grid;gap:18px;justify-items:center}
+.gilt img{width:min(62%,230px);height:auto;filter:drop-shadow(0 0 1px rgba(201,167,88,.4))}
+.gilt .k{font-variant:small-caps;letter-spacing:.3em;font-size:14px;opacity:.9}
+.gilt .n{font-family:"Cormorant Garamond",var(--f-book);font-style:italic;font-weight:500;font-size:clamp(46px,14vw,62px);line-height:1}
+.gilt .l{width:60px;height:1px;background:rgba(201,167,88,.7)}
+.gilt .tap{font-style:italic;font-size:15px;opacity:.75;animation:breathe 2.6s ease-in-out infinite;margin-top:14px}
+@keyframes breathe{50%{opacity:.35}}
+.face.back{transform:rotateY(180deg);background:var(--paper-2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><g fill='none' stroke='%236b5537' stroke-opacity='.28' stroke-width='1.2'><ellipse cx='30' cy='30' rx='7' ry='5'/><path d='M27 25v10M31 25v10'/><ellipse cx='90' cy='90' rx='7' ry='5'/><path d='M87 85v10M91 85v10'/></g></svg>") 0 0/120px 120px}
+.face.back::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(43,33,24,0) 70%,rgba(43,33,24,.25));pointer-events:none}
+
+/* pasar la página: lo que entra gira desde el lomo (borde izquierdo) y su sombra se va; solo transform/opacity */
+.turn{transform-origin:left center;backface-visibility:hidden;position:relative}
+.turn::after{content:"";position:absolute;inset:0;z-index:4;background:linear-gradient(90deg,rgba(43,33,24,.5),rgba(43,33,24,.08) 55%,rgba(43,33,24,0));opacity:0;pointer-events:none}
+.slide.show .turn{animation:turn 1.15s cubic-bezier(.2,.7,.2,1) both}
+.slide.show .turn::after{animation:shade 1.15s ease-out both}
+@keyframes turn{from{transform:perspective(1100px) rotateY(-88deg)}to{transform:perspective(1100px) rotateY(0)}}
+@keyframes shade{from{opacity:1}55%{opacity:.6}to{opacity:0}}
+.slide.show .inner.turn{animation:fadein .5s both,turn 1.15s cubic-bezier(.2,.7,.2,1) both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.next{position:absolute;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom,0px));text-align:center;font-style:italic;font-size:15px;color:var(--sepia)}
+.next span{display:inline-block;animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+/* tipografía de libro */
+.caps{font-variant:small-caps;letter-spacing:.18em;font-size:14px;color:var(--sepia)}
+.rule{display:flex;align-items:center;gap:12px;color:var(--rule);font-size:14px}
+.rule::before,.rule::after{content:"";flex:1;height:1px;background:var(--rule)}
+h1,h2,h3{font-weight:400;margin:0;text-wrap:balance}
+.chapter{font-variant:small-caps;letter-spacing:.22em;font-size:15px;color:var(--sepia)}
+.inwhich{font-style:italic;font-size:19px;line-height:1.4;max-width:30ch;margin:0 auto;color:var(--ink)}
+p{margin:0}
+
+/* cintilla de arriba (página actual) */
+.meter{position:fixed;z-index:5;left:0;right:0;top:env(safe-area-inset-top,0px);pointer-events:none}
+.meter-in{display:flex;justify-content:space-between;align-items:center;gap:10px;max-width:420px;margin:0 auto;padding:14px 20px}
+.meter .lbl{font-variant:small-caps;letter-spacing:.14em;font-size:14px;color:var(--sepia)}
+.meter .lbl b{font-weight:400;font-style:italic;font-variant:normal;letter-spacing:0;font-size:17px;color:var(--ink)}
+.pots{display:flex;gap:4px}
+.pots i{width:6px;height:6px;border-radius:50%;border:1px solid var(--sepia);transition:background .3s}
+.pots i.info{width:8px;height:8px}
+.pots i.on{background:var(--sepia)}
+
+/* abejas de tinta que cruzan de vez en cuando */
+.flyer{position:fixed;z-index:4;left:0;top:0;width:22px;height:18px;pointer-events:none;opacity:.8;animation:fly 24s linear infinite;transition:opacity 1.8s ease}
+body.chapters .flyer{opacity:0}
+.flyer.f2{width:16px;height:13px;animation:fly2 31s linear infinite;animation-delay:-14s}
+@keyframes fly{0%{transform:translate3d(-30px,30vh,0)}25%{transform:translate3d(24vw,24vh,0)}50%{transform:translate3d(50vw,34vh,0)}75%{transform:translate3d(76vw,22vh,0)}100%{transform:translate3d(108vw,30vh,0)}}
+@keyframes fly2{0%{transform:translate3d(108vw,66vh,0) scaleX(-1)}30%{transform:translate3d(70vw,60vh,0) scaleX(-1)}60%{transform:translate3d(40vw,72vh,0) scaleX(-1)}100%{transform:translate3d(-30px,64vh,0) scaleX(-1)}}
+.wing{transform-box:fill-box;transform-origin:50% 100%;animation:flap .14s linear infinite alternate}
+@keyframes flap{to{transform:scaleY(.4)}}
+
+/* 1 · portada */
+.cover{border:1px solid var(--ink);padding:26px 18px 24px;position:relative}
+.cover::before{content:"";position:absolute;inset:4px;border:1px solid var(--ink);pointer-events:none}
+.cover .inner-c{display:grid;gap:14px}
+.hero{display:block;width:min(70%,250px);height:auto;margin:0 auto}
+.hello{font-style:italic;font-size:19px;color:var(--sepia)}
+.hello:empty{display:none}
+h1.title{font-size:clamp(40px,12vw,54px);line-height:1;letter-spacing:.01em}
+h1.title .name{cursor:pointer;-webkit-tap-highlight-color:transparent;display:inline-block;font-family:"Cormorant Garamond",var(--f-book);font-style:italic;font-weight:500;font-size:1.2em;letter-spacing:.02em;line-height:.95;padding:0 .12em;
+  color:var(--blue);background:linear-gradient(100deg,#2f4a66,#3b5a78 22%,#4e7490 40%,#3b5a78 58%,#2d4660 78%,#466a86);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+h1.title .name{transition:opacity .9s ease,filter .9s ease,letter-spacing .9s ease}
+h1.title .name.veil{opacity:0;filter:blur(6px);letter-spacing:.12em}
+.slide.show h1.title .name{animation:blues 24s ease-in-out infinite alternate}
+@keyframes blues{from{background-position:0% 0}to{background-position:100% 0}}
+h1.title small{display:block;font-variant:small-caps;letter-spacing:.2em;font-size:15px;color:var(--sepia);margin-bottom:8px}
+.verse{font-style:italic;max-width:30ch;margin:0 auto}
+.when{display:grid;gap:2px}
+.when .d{font-size:21px}
+.when .t{font-variant:small-caps;letter-spacing:.14em;font-size:14px;color:var(--sepia)}
+.cd{font-variant:small-caps;letter-spacing:.1em;font-size:14px;color:var(--sepia);font-variant-numeric:tabular-nums;text-align:left}
+/* la dedicatoria, como en la página legal de un libro: chiquita y para quien se fija */
+.dedic{text-align:left;font-style:italic;font-size:11.5px;color:var(--sepia);opacity:.55;letter-spacing:.02em;margin-top:-6px}
+.cd b{font-weight:400;font-variant:normal;letter-spacing:0;font-size:17px;color:var(--ink)}
+.walkers{position:absolute;right:5%;bottom:40px;width:104px;height:auto;opacity:.7;pointer-events:none}
+
+/* 2 · capítulo primero: dónde y confirmar */
+.place{display:grid;gap:6px}
+.place h2{font-size:27px}
+.place .addr{color:var(--sepia)}
+.a-link{display:inline-block;margin:6px auto 0;color:var(--ink);font-variant:small-caps;letter-spacing:.12em;font-size:15px;text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:2px}
+.a-link:active{opacity:.6}
+
+/* la respuesta va en el texto de la página, sin recuadro: se rodea un número a pluma y se toca "Confirmar" */
+.reply{display:grid;gap:8px}
+.reply .ask{font-style:italic;font-size:17px}
+.count{display:flex;justify-content:center;gap:4px}
+.count button{position:relative;width:52px;height:56px;border:0;background:none;color:var(--ink);cursor:pointer;padding:0;transition:transform .18s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;--pot:#f3e9d2;--drip:transparent}
+.count button svg{position:absolute;inset:0;width:100%;height:100%}
+.count button b{position:absolute;left:0;right:0;top:24px;font-family:var(--f-book);font-weight:400;font-size:21px;line-height:1;text-align:center}
+.count button:active{transform:scale(.9)}
+.count button[aria-pressed="true"]{--pot:#e3b65c;--drip:#c9962f;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{0%{transform:scale(.85)}60%{transform:scale(1.12)}100%{transform:scale(1.05)}}
+.count.shake{animation:shake .55s cubic-bezier(.36,.07,.19,.97)}
+.count.shake button{animation:wiggle .55s calc(var(--i) * 45ms) ease-in-out}
+@keyframes shake{10%,90%{transform:translate3d(-1px,0,0)}20%,80%{transform:translate3d(2px,0,0)}30%,50%,70%{transform:translate3d(-4px,0,0)}40%,60%{transform:translate3d(4px,0,0)}}
+@keyframes wiggle{30%{transform:translateY(-5px) rotate(-6deg)}60%{transform:translateY(0) rotate(5deg)}}
+.whoLine{display:grid;gap:4px;justify-items:center;margin-top:4px}
+.whoLine input{width:min(100%,260px);border:0;border-bottom:1px solid var(--ink);background:transparent;text-align:center;font-family:var(--f-book);font-style:italic;font-size:18px;color:var(--ink);padding:4px 6px;border-radius:0;outline:none;-webkit-appearance:none}
+.whoLine input::placeholder{color:var(--sepia);opacity:.6}
+.whoLine input:focus{border-bottom-color:var(--blue)}
+.whoLine.shake{animation:shake .55s cubic-bezier(.36,.07,.19,.97)}
+.hint{font-style:italic;font-size:15px;color:var(--red);min-height:1.4em;opacity:0;transform:translateY(-4px);transition:opacity .3s,transform .3s}
+.hint.on{opacity:1;transform:none}
+.rsvp{display:grid;gap:10px;justify-items:stretch;max-width:300px;margin:6px auto 0;width:100%}
+.wood-btn{position:relative;display:block;width:100%;text-decoration:none;text-align:center;border:1px solid var(--ink);background:var(--paper);color:var(--ink);padding:13px 14px;font-family:var(--f-book);font-variant:small-caps;letter-spacing:.14em;font-size:16px;line-height:1.2;cursor:pointer;transition:color .25s,border-color .25s,background .25s;-webkit-tap-highlight-color:transparent}
+.wood-btn::after{content:"";position:absolute;inset:3px;border:1px solid var(--rule);pointer-events:none;transition:border-color .25s}
+.wood-btn:active{background:var(--paper-2)}
+.wood-btn.ready{background:var(--ink);color:var(--paper)}
+.wood-btn.ready::after{border-color:rgba(243,233,210,.45)}
+.wood-btn.ready:active{background:#3b2e22}
+.wood-btn.muted{color:var(--sepia);border-style:dashed;border-color:var(--sepia);font-variant:normal;font-style:italic;letter-spacing:0}
+.wood-btn.muted::after{display:none}
+.wood-btn.nudge{animation:shake .5s cubic-bezier(.36,.07,.19,.97)}
+.wood-btn.sent-ok{background:var(--paper);color:var(--ink);border-color:var(--ink)}
+.wood-btn.sent-ok::after{border-color:var(--rule)}
+.wood-btn.ghost{color:var(--sepia);border-color:var(--sepia);font-style:italic;font-variant:normal;letter-spacing:0;padding:11px 14px}
+.wood-btn.ghost::after{display:none}
+.link-btn{display:inline-block;background:none;border:0;padding:3px 2px;font-style:italic;font-size:16px;color:var(--sepia);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.link-btn:active{opacity:.6}
+.fine{font-size:14.5px;color:var(--sepia);font-style:italic}
+.sent{display:none;align-items:center;justify-content:center;gap:8px;font-style:italic;font-size:17px}
+.sent.on{display:flex;animation:rise .6s both}
+.sent svg{width:22px;height:22px;flex:none}
+.sent path{stroke:var(--ink);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30;animation:draw .5s .2s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.nm{font-family:"Cormorant Garamond",var(--f-book);font-style:italic;font-weight:500;color:var(--blue);font-size:1.1em}
+/* la hoja de confirmación: papel que sube desde abajo, con el estilo del libro */
+.sheet{position:fixed;inset:0;z-index:20;display:grid;align-items:end;justify-items:center}
+.sheet[hidden]{display:none}
+.sheet-bg{position:absolute;inset:0;background:rgba(43,33,24,.42);opacity:0;transition:opacity .3s}
+.sheet-card{position:relative;width:100%;max-width:440px;background:var(--paper);border-radius:12px 12px 0 0;padding:24px 24px calc(20px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;text-align:center;box-shadow:0 -12px 40px rgba(43,33,24,.3);transform:translate3d(0,100%,0);transition:transform .38s cubic-bezier(.22,.8,.25,1);outline:none}
+.sheet-card::before{content:"";position:absolute;inset:8px 8px 0;border:1px solid var(--rule);border-bottom:0;border-radius:8px 8px 0 0;pointer-events:none}
+.sheet.open .sheet-bg{opacity:1}
+.sheet.open .sheet-card{transform:none}
+.sheet h2{font-style:italic;font-size:25px;line-height:1.2}
+.sheet-who{font-variant:small-caps;letter-spacing:.14em;font-size:14px;color:var(--sepia)}
+.note{position:relative;font-style:italic;padding:6px 18px;line-height:1.45;margin:0}
+.note::before,.note::after{font-family:"Cormorant Garamond",var(--f-book);font-size:34px;line-height:0;color:var(--rule);position:absolute}
+.note::before{content:"“";left:0;top:16px}.note::after{content:"”";right:0;bottom:-2px}
+.go-wa{display:inline-block;margin:4px auto 0;text-decoration:none;color:var(--ink);font-variant:small-caps;letter-spacing:.14em;font-size:16px;padding:4px 2px 3px;border-bottom:1px solid var(--ink)}
+.go-wa:active{opacity:.6}
+.sheet .fine{margin-top:2px}
+
+/* cielo de cada capítulo: las estaciones de su primer año (nació en octubre). Día los primeros seis meses,
+   noche los últimos seis (luna y estrellas). Hojas que cambian de color con la estación; copos en invierno.
+   Tinta de color, detrás de la página; solo transform/opacity, y solo se mueve mientras la página está a la vista */
+.sky{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.slide .inner{z-index:1}
+.sky svg{position:absolute;top:var(--y,0);left:var(--x);width:var(--w);height:var(--w);color:var(--c,var(--sepia));opacity:0;animation-play-state:paused;animation-iteration-count:infinite;animation-timing-function:linear;animation-fill-mode:both}
+.slide.live .sky svg{animation-play-state:running}
+.sky .wide{height:calc(var(--w) / 5)}
+.sky .fall{animation-name:fall}
+@keyframes fall{0%{transform:translate3d(0,-12vh,0) rotate(0);opacity:0}8%{opacity:.8}90%{opacity:.8}100%{transform:translate3d(var(--dx),108vh,0) rotate(var(--r));opacity:0}}
+.sky .sway{animation-name:sway;animation-timing-function:ease-in-out}
+@keyframes sway{0%{transform:translate3d(0,-12vh,0) rotate(-12deg);opacity:0}10%{opacity:.8}25%{transform:translate3d(7vw,18vh,0) rotate(14deg)}50%{transform:translate3d(-6vw,48vh,0) rotate(-14deg)}75%{transform:translate3d(6vw,78vh,0) rotate(12deg)}92%{opacity:.8}100%{transform:translate3d(-3vw,108vh,0) rotate(-8deg);opacity:0}}
+.sky .snow{animation-name:snow}
+@keyframes snow{0%{transform:translate3d(0,-8vh,0);opacity:0}10%{opacity:.75}50%{transform:translate3d(calc(var(--dx) * .5 + 14px),50vh,0)}90%{opacity:.75}100%{transform:translate3d(var(--dx),108vh,0);opacity:0}}
+.sky .gust{animation-name:gust;animation-timing-function:cubic-bezier(.3,.1,.5,1)}
+@keyframes gust{0%{transform:translate3d(-40vw,0,0);opacity:0}35%{opacity:.4}70%{opacity:.4}100%{transform:translate3d(120vw,-5vh,0);opacity:0}}
+.sky .moon{opacity:.6;animation:none}
+.sky .bear{animation-name:twinkle;animation-timing-function:ease-in-out;animation-direction:alternate}  /* la Osa Mayor */
+.sky .contrary{animation-name:contrary;height:calc(var(--w) / 2);animation-timing-function:cubic-bezier(.3,.2,.6,1)}
+@keyframes contrary{0%,58%{transform:translate3d(110vw,4vh,0) scaleX(-1);opacity:0}62%{opacity:.7}96%{opacity:.7}100%{transform:translate3d(-20vw,-2vh,0) scaleX(-1);opacity:0}}
+.sky .rise{animation-name:rise-up;animation-timing-function:ease-in-out;height:calc(var(--w) * 2)}
+@keyframes rise-up{0%{transform:translate3d(0,108vh,0) rotate(-3deg);opacity:0}8%{opacity:.85}30%{transform:translate3d(3vw,70vh,0) rotate(3deg)}60%{transform:translate3d(-3vw,32vh,0) rotate(-3deg)}92%{opacity:.85}100%{transform:translate3d(2vw,-20vh,0) rotate(2deg);opacity:0}}
+.sky .step{animation-name:step;animation-timing-function:ease-out}
+@keyframes step{0%{opacity:0}6%,55%{opacity:.45}70%,100%{opacity:0}}
+.sky .twinkle{animation-name:twinkle;animation-timing-function:ease-in-out;animation-direction:alternate}
+@keyframes twinkle{0%{opacity:.1;transform:scale(.7)}100%{opacity:.8;transform:scale(1)}}
+.sky .glow{animation-name:glow;animation-timing-function:ease-in-out}
+@keyframes glow{0%{opacity:.05;transform:translate3d(0,0,0) scale(.6)}50%{opacity:.9;transform:translate3d(10px,-14px,0) scale(1)}100%{opacity:.05;transform:translate3d(-6px,-26px,0) scale(.6)}}
+.sky .sun{opacity:.5;animation:none}
+.sky .fixed{opacity:.55;animation:none}
+.sky .drift{animation-name:drift;height:calc(var(--w) / 2)}
+@keyframes drift{0%{transform:translate3d(-30vw,0,0);opacity:0}10%{opacity:.35}90%{opacity:.35}100%{transform:translate3d(120vw,-3vh,0);opacity:0}}
+.sky .flock{animation-name:flock;height:calc(var(--w) / 2);animation-timing-function:cubic-bezier(.3,.2,.6,1)}
+@keyframes flock{0%,55%{transform:translate3d(-20vw,6vh,0);opacity:0}60%{opacity:.7}96%{opacity:.7}100%{transform:translate3d(115vw,-4vh,0);opacity:0}}
+.sky .float{animation-name:float-up;animation-timing-function:ease-in-out;height:calc(var(--w) * 1.33)}
+@keyframes float-up{0%{transform:translate3d(0,108vh,0) rotate(-10deg);opacity:0}8%{opacity:.75}30%{transform:translate3d(5vw,74vh,0) rotate(8deg)}60%{transform:translate3d(-4vw,38vh,0) rotate(-8deg)}92%{opacity:.75}100%{transform:translate3d(3vw,-14vh,0) rotate(6deg);opacity:0}}
+.sky .flutter{animation-name:flutter;animation-timing-function:ease-in-out;height:calc(var(--w) * .75)}
+@keyframes flutter{0%{transform:translate3d(-12vw,0,0) scaleX(1);opacity:0}6%{opacity:.85}22%{transform:translate3d(20vw,-10vh,0) scaleX(1)}45%{transform:translate3d(48vw,6vh,0) scaleX(1)}50%{transform:translate3d(52vw,5vh,0) scaleX(-1)}70%{transform:translate3d(26vw,-6vh,0) scaleX(-1)}94%{opacity:.85}100%{transform:translate3d(-12vw,4vh,0) scaleX(-1);opacity:0}}
+.sky .bwing{transform-box:fill-box;transform-origin:100% 50%;animation:bflap .26s ease-in-out infinite alternate}
+.sky .bwing.r{transform-origin:0 50%}
+@keyframes bflap{to{transform:scaleX(.35)}}
+.sky .bee{animation-name:flutter;animation-timing-function:ease-in-out;animation-direction:alternate;height:calc(var(--w) * .85)}
+.sky .wing{transform-box:fill-box;transform-origin:50% 100%;animation:flap .14s linear infinite alternate}
+/* lluvia con profundidad: dos capas de hilos (lejos: cortos y tenues; cerca: largos y marcados) que caen rectas dentro
+   de una capa que se inclina entera con las rachas de viento; abajo, salpicaduras donde caen */
+.rainlayer{position:absolute;inset:-12% -10% 0;transform-origin:50% 0;animation:gust-soft 7s ease-in-out infinite alternate;animation-play-state:paused;pointer-events:none}
+.slide.live .rainlayer{animation-play-state:running}
+.rainlayer.storm{animation:gust-storm 3.8s ease-in-out infinite alternate;animation-play-state:paused}
+.slide.live .rainlayer.storm{animation-play-state:running}
+@keyframes gust-soft{from{transform:skewX(-3deg)}to{transform:skewX(-9deg)}}
+@keyframes gust-storm{from{transform:skewX(-13deg) translate3d(0,0,0)}to{transform:skewX(-26deg) translate3d(-3vw,0,0)}}
+.rainlayer svg{position:absolute;top:0;left:var(--x);width:var(--w);height:calc(var(--w) * var(--len,18));opacity:0;animation:drop-fall var(--d) linear infinite;animation-delay:var(--dl);animation-play-state:inherit}
+@keyframes drop-fall{0%{transform:translate3d(0,-22vh,0);opacity:0}6%{opacity:var(--o)}94%{opacity:var(--o)}100%{transform:translate3d(0,112vh,0);opacity:0}}
+.sky .splash{animation-name:splash;animation-timing-function:ease-out;height:calc(var(--w) / 2)}
+@keyframes splash{0%,70%{opacity:0;transform:scale(.4)}74%{opacity:.6;transform:scale(.9)}88%{opacity:.25;transform:scale(1.15)}100%{opacity:0;transform:scale(1.2)}}
+.sky .ripple{animation-name:ripple;height:calc(var(--w) / 3);animation-timing-function:ease-out}
+@keyframes ripple{0%{transform:scale(.2);opacity:0}30%{opacity:.5}100%{transform:scale(1.2);opacity:0}}
+.sky .bolt{animation-name:bolt;height:calc(var(--w) * 2.6);animation-timing-function:linear}
+@keyframes bolt{0%,69.6%{opacity:0}69.9%{opacity:1}70.6%{opacity:.15}71%{opacity:.9}71.6%{opacity:0}72.2%{opacity:.5}72.8%,100%{opacity:0}}
+/* el relámpago: el papel se ilumina un instante, detrás de la página */
+.sky .flash{position:absolute;inset:0;background:#fffaf0;opacity:0;animation:flash var(--d,9s) linear infinite;animation-play-state:paused}
+.slide.live .sky .flash{animation-play-state:running}
+@keyframes flash{0%,69.6%{opacity:0}69.9%{opacity:.85}70.3%{opacity:.3}70.6%{opacity:.15}71%{opacity:.7}71.6%{opacity:.2}72.2%{opacity:.45}73.4%{opacity:.08}75%,100%{opacity:0}}
+.sky .cloud-dark{color:#6b5537}
+/* de noche el papel se oscurece apenas, como leer a la luz de una vela */
+.slide.night{background:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0 0.08 0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"),
+  radial-gradient(120% 90% at 50% 40%,#e9ddc2 40%,#d6c6a1 100%)}
+
+/* 3–14 · capítulos: la foto como lámina del libro */
+.plate{width:min(82vw,330px);margin:0 auto;justify-self:center;background:var(--paper);border:1px solid var(--ink);padding:8px;position:relative}
+.plate::before{content:"";position:absolute;inset:3px;border:1px solid var(--rule);pointer-events:none;z-index:2}
+.frame{aspect-ratio:4/5;background:var(--paper-2);display:grid;place-items:center;overflow:hidden;position:relative;color:var(--sepia);font-style:italic;font-size:15px}
+.frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.12) contrast(1.02);opacity:0;transition:opacity .55s ease}
+.frame img.on{opacity:1}
+.frame img.gone{display:none}
+.arrow{position:absolute;top:50%;z-index:4;width:34px;height:34px;margin-top:-17px;border-radius:50%;border:1px solid var(--ink);background:var(--paper);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0;box-shadow:0 2px 6px rgba(43,33,24,.18);-webkit-tap-highlight-color:transparent;transition:transform .15s,opacity .3s}
+.arrow:active{transform:scale(.9)}
+.arrow.l{left:12px}.arrow.r{right:12px}
+.arrow{background:rgba(243,233,210,.88);border-color:rgba(43,33,24,.7)}
+.arrow svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.plate.single .arrow,.plate.single + .dots{display:none}
+.dots{display:flex;justify-content:center;gap:7px;margin-top:10px}
+.dots i{width:6px;height:6px;border-radius:50%;border:1px solid var(--sepia);transition:background .3s}
+.dots i.on{background:var(--sepia)}
+/* la flechita de abajo: por curiosidad la tocan, y pasa la hoja */
+.go.page{bottom:calc(44px + env(safe-area-inset-bottom,0px));font-size:20px;opacity:.6}
+/* la hoja que presenta cada capítulo: una página aparte, con el personaje y una línea del cuento */
+.leafpage{background:linear-gradient(90deg,#efe4ca,var(--paper) 30%,var(--paper) 85%,#efe4ca)}
+.leafpage::before{content:"";position:absolute;inset:18px;border:1px solid var(--faint);pointer-events:none}
+.leafpage .in{display:grid;justify-items:center;margin:auto}
+.leafpage span{font-variant:small-caps;letter-spacing:.32em;font-size:15px;color:var(--sepia);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:8px 16px}
+.leafpage .tale{margin-top:16px;max-width:26ch;font-style:italic;font-size:17px;line-height:1.45;color:var(--ink);text-align:center}
+.leafpage .art{display:block;width:var(--aw,170px);height:auto;margin:0 auto 22px;opacity:.9}
+.go{position:absolute;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));text-align:center;font-style:italic;font-size:14px;color:var(--sepia);opacity:.75}
+.go b{display:inline-block;font-style:normal;animation:bob 1.8s ease-in-out infinite}
+.cap{font-style:italic;font-size:18px;margin-top:4px}
+.folio{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));text-align:center;font-size:14px;color:var(--sepia);letter-spacing:.3em}
+.pooh{position:absolute;z-index:3;pointer-events:none;height:auto;width:72px}
+.pooh.l{left:-28px;bottom:-22px}
+.pooh.r{right:-28px;bottom:-22px}
+.end{font-style:italic;font-size:19px;max-width:28ch;margin:0 auto}
+.fin{font-family:"Cormorant Garamond",var(--f-book);font-style:italic;font-weight:500;font-size:30px;color:var(--blue);line-height:1.1}
+.fin small{display:block;font-family:var(--f-book);font-style:normal;font-variant:small-caps;letter-spacing:.3em;font-size:14px;color:var(--sepia);margin-bottom:4px}
+.friends{display:block;width:min(84%,320px);height:auto;margin:0 auto}
+.last .inner{gap:20px}
+.last .forest{height:46%;opacity:.16}
+.forest{position:absolute;left:0;right:0;bottom:0;height:40%;background:url("pooh/087.webp") center bottom/auto 100% no-repeat;opacity:.12;pointer-events:none}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="s-bee" viewBox="-14 -16 28 24"><ellipse class="wing" cx="-3" cy="-9" rx="5" ry="4" fill="#f3e9d2" stroke="#2b2118" stroke-width=".9"/><ellipse class="wing" cx="3.5" cy="-9" rx="5" ry="4" fill="#f3e9d2" stroke="#2b2118" stroke-width=".9"/><ellipse rx="9" ry="6" fill="#f3e9d2" stroke="#2b2118" stroke-width="1.4"/><path d="M-3.5 -5.5 V5.5 M2 -5.5 V5.5" stroke="#2b2118" stroke-width="2.4"/><circle cx="6.5" cy="-1.5" r="1" fill="#2b2118"/></symbol>
+  <symbol id="s-hunny" viewBox="0 0 56 60"><path d="M8 16 C-2 30 -2 50 12 57 H44 C58 50 58 30 48 16Z" fill="var(--pot,#f3e9d2)" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="4" y="5" width="48" height="12" rx="4" fill="#f3e9d2" stroke="currentColor" stroke-width="1.6"/><path d="M12 17 C15 27 20 20 23 30 C26 20 31 26 34 18" fill="none" stroke="var(--drip,transparent)" stroke-width="4.5" stroke-linecap="round"/></symbol>
+  <symbol id="s-check" viewBox="0 0 24 24"><path d="M4 12.5 L9.5 18 L20 6.5"/></symbol>
+  <symbol id="s-leaf" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M3 20 C4 10 11 4 21 3 C20 13 14 19 3 20Z"/><path d="M3 20 L17 6"/><path d="M8 15 L9 11 M11 12 L13 8"/></g></symbol>
+  <symbol id="s-flake" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/><path d="M12 6l-2 1.5M12 6l2 1.5M12 18l-2-1.5M12 18l2-1.5"/></g></symbol>
+  <symbol id="s-petal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M12 3 C18 8 18 16 12 21 C6 16 6 8 12 3Z"/><path d="M12 7v10"/></g></symbol>
+  <symbol id="s-wind" viewBox="0 0 120 24"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M2 14 C30 14 50 8 70 8 C88 8 92 2 100 6 C106 9 100 14 96 11"/><path d="M14 20 C40 20 60 16 84 16 C98 16 104 12 110 15"/></g></symbol>
+  <symbol id="s-comet" viewBox="0 0 120 24"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M2 20 C30 16 60 12 98 10" stroke-dasharray="5 4" opacity=".6"/><path d="M10 22 C40 19 70 16 100 13" stroke-dasharray="3 5" opacity=".35"/><path d="M104 10 l3 -6 l3 6 l6 2 l-6 2 l-3 6 l-3 -6 l-6 -2z" fill="currentColor" stroke="none"/></g></symbol>
+  <symbol id="s-spark" viewBox="0 0 24 24"><path d="M12 2 l2.2 7.8 L22 12 l-7.8 2.2 L12 22 l-2.2 -7.8 L2 12 l7.8 -2.2z" fill="currentColor"/></symbol>
+  <symbol id="s-feather" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M20 4 C12 5 6 12 4 21 C13 19 19 13 20 4Z"/><path d="M4 21 L18 6"/><path d="M8 17 L9 13 M11 14 L12 10 M14 11 L15 8"/></g></symbol>
+  <symbol id="s-sun" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><circle cx="24" cy="24" r="9"/><path d="M24 4v6M24 38v6M4 24h6M38 24h6M9.9 9.9l4.2 4.2M33.9 33.9l4.2 4.2M9.9 38.1l4.2-4.2M33.9 14.1l4.2-4.2"/></g></symbol>
+  <symbol id="s-cloud" viewBox="0 0 64 32"><path d="M12 26 C4 26 4 16 12 15 C12 6 26 4 30 12 C34 6 48 8 46 16 C56 15 58 26 48 26Z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></symbol>
+  <symbol id="s-bird" viewBox="0 0 24 12"><path d="M1 9 C5 3 9 4 12 8 C15 4 19 3 23 9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+  <symbol id="s-acorn" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"><path d="M7 10 C7 18 10 21 12 22 C14 21 17 18 17 10Z"/><path d="M6 10 C6 6 9 5 12 5 C15 5 18 6 18 10Z" fill="currentColor"/><path d="M12 5 L12 2"/></g></symbol>
+  <symbol id="s-branch" viewBox="0 0 120 70"><g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M2 68 C30 60 50 40 70 30 C85 22 100 18 118 12"/><path d="M40 46 C42 36 48 30 58 26"/><path d="M58 36 C66 36 74 32 80 26 M80 26 C84 20 86 14 90 10"/><path d="M26 54 C24 46 26 42 32 38"/><path d="M96 20 C100 24 106 26 112 26"/></g></symbol>
+  <symbol id="s-seed" viewBox="0 0 24 32"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path d="M12 31 L12 14"/><path d="M12 14 L4 4 M12 14 L7 2 M12 14 L12 1 M12 14 L17 2 M12 14 L20 4 M12 14 L3 9 M12 14 L21 9"/><circle cx="12" cy="30" r="1.4" fill="currentColor"/></g></symbol>
+  <symbol id="s-butterfly" viewBox="0 0 32 24"><g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"><path class="bwing" d="M15 12 C8 2 1 4 2 10 C3 16 10 17 15 12 C9 15 4 22 8 23 C12 24 14 18 15 12Z"/><path class="bwing r" d="M17 12 C24 2 31 4 30 10 C29 16 22 17 17 12 C23 15 28 22 24 23 C20 24 18 18 17 12Z"/><path d="M16 6 V19 M14 5 L12 2 M18 5 L20 2"/></g></symbol>
+  <linearGradient id="g-drop" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="60"><stop offset="0" stop-color="#6e7d94" stop-opacity="0"/><stop offset=".45" stop-color="#6e7d94" stop-opacity=".7"/><stop offset="1" stop-color="#6e7d94" stop-opacity="1"/></linearGradient>
+  <symbol id="s-drop" viewBox="0 0 4 60"><path d="M1.75 0 L2.25 0 L2.7 59 A.7 .7 0 0 1 1.3 59Z" fill="url(#g-drop)"/></symbol>
+  <symbol id="s-splash" viewBox="0 0 24 12"><g fill="none" stroke="#7d8aa0" stroke-width=".9" stroke-linecap="round"><path d="M4 10 C6 6 8 5 9 3"/><path d="M20 10 C18 6 16 5 15 3"/><path d="M12 9 L12 2"/><ellipse cx="12" cy="10.5" rx="8" ry="1.4" opacity=".6"/></g></symbol>
+  <symbol id="s-bolt" viewBox="0 0 60 150"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M30 2 L24 30 L33 38 L22 66 L31 72 L20 104 L28 110 L18 148" stroke="#fff6dc" stroke-width="5" opacity=".9"/><path d="M30 2 L24 30 L33 38 L22 66 L31 72 L20 104 L28 110 L18 148" stroke="currentColor" stroke-width="1.2"/><path d="M33 38 L44 52 L40 68" stroke="currentColor" stroke-width=".9" opacity=".7"/><path d="M22 66 L12 80" stroke="currentColor" stroke-width=".8" opacity=".6"/></g></symbol>
+  <symbol id="s-ripple" viewBox="0 0 48 16"><ellipse cx="24" cy="8" rx="22" ry="6" fill="none" stroke="currentColor" stroke-width="1"/></symbol>
+  <symbol id="s-moon" viewBox="0 0 24 24"><path d="M16 3 A9.5 9.5 0 1 0 21 17 A7.5 7.5 0 0 1 16 3Z" fill="none" stroke="currentColor" stroke-width="1.1"/></symbol>
+  <symbol id="s-moon-half" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M12 2.5 A9.5 9.5 0 0 0 12 21.5Z" fill="currentColor" fill-opacity=".35"/></symbol>
+  <symbol id="s-moon-gibbous" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M12 2.5 A9.5 9.5 0 0 0 12 21.5 A5 9.5 0 0 1 12 2.5Z" fill="currentColor" fill-opacity=".35"/></symbol>
+  <symbol id="s-moon-full" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.1"/><circle cx="12" cy="12" r="9.5" fill="currentColor" fill-opacity=".3"/><circle cx="8.5" cy="9" r="1.6" fill="currentColor" fill-opacity=".25"/><circle cx="14" cy="14.5" r="2.4" fill="currentColor" fill-opacity=".22"/></symbol>
+  <symbol id="s-balloon" viewBox="0 0 24 48"><path d="M12 28 C10 34 14 40 11 47" fill="none" stroke="currentColor" stroke-width="1"/><ellipse cx="12" cy="14" rx="9" ry="12" fill="#a9463a" fill-opacity=".7" stroke="currentColor" stroke-width="1"/><path d="M10 26 L14 26 L12 29Z" fill="currentColor"/></symbol>
+  <symbol id="s-paw" viewBox="0 0 20 20"><g fill="currentColor"><ellipse cx="10" cy="13" rx="5" ry="4.2"/><circle cx="4" cy="7.5" r="2"/><circle cx="8" cy="4.5" r="2"/><circle cx="12.5" cy="4.5" r="2"/><circle cx="16.3" cy="7.5" r="2"/></g></symbol>
+</svg>
+<div class="flyer" aria-hidden="true"><svg width="22" height="18"><use href="#s-bee"/></svg></div>
+<div class="flyer f2" aria-hidden="true"><svg width="16" height="13"><use href="#s-bee"/></svg></div>
+
+<div class="meter" id="meter" aria-hidden="true"><div class="meter-in"><div class="lbl" id="lbl">Portada</div><div class="pots" id="pots"></div></div></div>
+<audio id="music" src="musica.m4a" loop preload="auto"></audio>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t" hidden>
+  <div class="sheet-bg" data-close></div>
+  <div class="sheet-card" tabindex="-1">
+    <div class="caps" id="sheet-k">Confirmación</div>
+    <h2 id="sheet-t"></h2>
+    <div class="sheet-who" id="sheet-who"></div>
+    <p class="note" id="sheet-msg"></p>
+    <a class="go-wa" id="sheet-go" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+    <button class="link-btn" type="button" data-close>Volver</button>
+  </div>
+</div>
+
+<div class="book" id="book">
+  <div class="pshade"></div>
+  <div class="cover3d" id="cover3d" role="button" tabindex="0" aria-label="Abrir la invitación">
+    <div class="face front"><div class="gilt">
+      <img src="pooh/29-gold.webp" alt="" width="921" height="675">
+      <div class="k">El primer año de</div>
+      <div class="n">Azulita</div>
+      <div class="l"></div>
+      <div class="k">Un cumpleaños en el bosque</div>
+      <div class="tap">toca para abrir</div>
+    </div></div>
+    <div class="face back"></div>
+  </div>
+</div>
+
+<main id="deck" class="deck">
+  <!-- 1 · Portada (página del título) -->
+  <section class="screen"><div class="front slide" data-label="Portada" data-page="0">
+    <div class="inner">
+      <div class="cover"><div class="inner-c">
+        <img class="hero" src="pooh/29.webp" alt="Winnie Pooh colgado de un globo, rodeado de abejas" width="921" height="675">
+        <p class="hello" id="hello"></p>
+        <h1 class="title"><small>El primer año de</small><span class="name">Azulita</span></h1>
+        <div class="rule">❧</div>
+        <p class="verse">Hace un año llegaste y todo se volvió más dulce que la miel. Ven a celebrar con nosotros su primer año de aventuras.</p>
+        <div class="when"><div class="d">Sábado 24 de octubre</div><div class="t">a las tres de la tarde</div></div>
+        <div class="cd" id="cd">faltan <b>--</b> días · <b>--</b> h · <b>--</b> min</div>
+        <div class="dedic">para Azul Daniela, que llegó un 22 de octubre</div>
+      </div></div>
+    </div>
+    <img class="walkers" src="pooh/53.webp" alt="" aria-hidden="true">
+  </div><div class="back"></div><div class="shade"></div></section>
+
+  <!-- 2 · Prólogo: su hoja y la página (dónde y confirmación) -->
+  <section class="screen"><div class="front slide leafpage" data-label="Prólogo" data-page="1">
+    <div class="in"><img class="art" src="pooh/53.webp" alt="" style="--aw:150px"><span>Prólogo</span><p class="tale" id="tale-pro"></p></div>
+    <i class="go"><b>↓</b> desliza o toca para pasar la hoja</i>
+  </div><div class="back"></div><div class="shade"></div></section>
+  <section class="screen"><div class="front slide" data-label="Prólogo" data-page="1">
+    <div class="inner">
+      <h2 class="inwhich">En el que se cuenta dónde será la fiesta y se pide un sí</h2>
+      <div class="place">
+        <h2>Flor de Loto 139</h2>
+        <p class="addr">Anáhuac La Escondida, San Nicolás de los Garza<br>a las tres de la tarde</p>
+        <a class="a-link" href="https://maps.app.goo.gl/Zngawvp6LoQY4WuB7" target="_blank" rel="noopener">Ver el camino en el mapa</a>
+      </div>
+      <div class="rule">❧</div>
+      <div class="reply">
+        <div class="caps">¿Nos acompañan?</div>
+        <p class="ask">Para saber cuántos tarros de miel preparar, dinos cuántos vienen, contándote a ti:</p>
+        <div class="count" id="count" role="group" aria-label="Número de personas"></div>
+        <label class="whoLine"><span class="caps">De parte de</span><input id="who" type="text" placeholder="tu nombre o familia" autocomplete="name" maxlength="40" enterkeyhint="done"></label>
+        <p class="hint" id="hint" role="status" aria-live="polite"></p>
+        <div class="rsvp">
+          <button class="wood-btn muted" id="yes" type="button"><span id="yes-t">Elige cuántos vienen</span></button>
+          <button class="wood-btn ghost" id="no" type="button">Esta vez no podré</button>
+        </div>
+        <p class="sent" id="sent" role="status"><svg aria-hidden="true"><use href="#s-check"/></svg><span id="sent-t"></span></p>
+      </div>
+    </div>
+  </div><div class="back"></div><div class="shade"></div></section>
+  <!-- 3–14 · los meses se agregan abajo -->
+</main>
+
+<script>
+// ── Datos (de ejemplo hasta que Gus dé los reales) ──
+const PARTY = new Date("2026-10-24T15:00:00-06:00");
+const PHONE = "528116689958";
+// Enlace personal por familia: …#clave → saludo con su nombre y cuántos son sugerido.
+const GUESTS = {
+  perez:   { name: "Familia Pérez", n: 4 },
+  abuelos: { name: "Abuelos",       n: 2 },
+  tia_ana: { name: "Tía Ana",       n: 1 }
+};
+const MONTHS = ["llegaste", "dormidita, soñando", "descubriendo el mundo", "poniendo más atención",
+  "curioseando", "medio año", "ya te sientas", "ahora sí, la risa",
+  "traviesa", "¡uy, comiendo!", "mamitis", "ya casi el año"];
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];  // capítulo = mes
+// viñetas de Shepard que se asoman junto a cada lámina
+const POOH = (f, side) => `<img class="pooh ${side}" src="pooh/${f}.webp" alt="" aria-hidden="true">`;
+const VIGNETTES = [POOH("092", "l"), POOH("094-1", "r"), POOH("088", "l"), POOH("76-1", "r"), POOH("20-2", "l"), POOH("26", "r")];
+
+// Cielo de cada capítulo: las estaciones de su primer año (nació en octubre), un capítulo de día y el siguiente de noche.
+// Cada entrada: [clase de animación, símbolo, tamaño mín-máx, duración mín-máx, cuántos, color, extra]
+const OCRE = ["#b8722e", "#a9463a", "#8a6a3c"], PARDO = ["#8a6a3c", "#6b5537"], VERDE = ["#6f8f4e", "#8fae6a"], ORO = ["#b8933f", "#b8722e"];
+const NIEVE = "#8d9ab0", FLOR = "#c9a0a0", TINTA = "#6b5537", LUZ = "#b8933f", NUBE = "#a8977a";
+const sun   = ["sun", "sun", [60, 60], [1, 1], 1, "#b8933f", "--x:8%;--y:5%"];
+const cloud = (k, c = NUBE) => ["drift", "cloud", [70, 120], [30, 50], k, c, "--x:0;--y:#4-26%"];
+const stars = (k, c = TINTA) => ["twinkle", "spark", [5, 11], [2.2, 4.5], k, c, "--y:#3-30%"];
+const flies = k => ["glow", "spark", [6, 11], [3, 6], k, LUZ, "--y:#10-92%"];
+const wind  = k => ["gust wide", "wind", [150, 150], [7, 11], k, "#8a6a3c", "--x:0;--y:#15-75%"];
+const leaves = (k, c) => ["fall", "leaf", [15, 28], [10, 16], k, c];
+const SKY = [null,
+  { day: true,  items: [sun, leaves(7, OCRE), ["fall", "acorn", [12, 18], [8, 12], 3, "#6b5537"], ["flock", "bird", [16, 26], [14, 14], 5, TINTA, "--x:#0-30%;--y:#4-12%;animation-delay:-#0-3s"], wind(2)] },   // 1 · octubre
+  { rain: "storm", items: [["drift cloud-dark", "cloud", [90, 140], [18, 30], 3, "#6b5537", "--x:0;--y:#3-16%"], ["splash", "splash", [10, 16], [1.1, 1.9], 14, "#7d8aa0", "--x:#0-100%;--y:#93-98%"], leaves(5, PARDO), wind(3),
+             ["bolt", "bolt", [34, 52], [7, 13], 3, "#2b2118", "--x:#6-88%;--y:#2-12%;animation-delay:-#0-12s"], ["flash", "", [0, 0], [0, 0], 0, "", ""]] },                 // 2 · noviembre: noche de tormenta
+  { day: true,  items: [["fixed", "branch", [150, 150], [1, 1], 1, TINTA, "--x:-6%;--y:9%"], cloud(2), ["snow", "flake", [9, 17], [13, 20], 9, NIEVE], leaves(2, PARDO)] }, // 3 · diciembre: primeros copos
+  { items: [stars(10), ["snow", "flake", [10, 20], [13, 20], 16, NIEVE]] },                                                                      // 4 · enero: nieve de noche
+  { day: true,  items: [sun, cloud(3, "#b5a58a"), ["snow", "flake", [8, 14], [13, 20], 5, "#9aa5b8"], ["sway", "petal", [10, 18], [12, 18], 4, FLOR], wind(1)] }, // 5 · febrero: deshielo
+  { items: [stars(12), ["sway", "petal", [10, 18], [12, 18], 8, FLOR], leaves(3, VERDE)] },                                                     // 6 · marzo: primavera de noche
+  { day: true,  items: [sun, cloud(2), ["flutter", "butterfly", [24, 38], [18, 26], 3, TINTA, "--x:0;--y:#4-16%"], ["sway", "petal", [10, 18], [12, 18], 6, FLOR], ["bee", "bee", [18, 24], [22, 30], 2, TINTA, "--x:0;--y:#60-80%"]] }, // 7 · abril
+  { items: [stars(6), flies(12), leaves(3, VERDE)] },                                                                                            // 8 · mayo: luciérnagas
+  { day: true,  items: [sun, cloud(2), ["float", "seed", [14, 24], [14, 22], 8, TINTA], ["bee", "bee", [18, 24], [22, 30], 2, TINTA, "--x:0;--y:#8-20%"]] },        // 9 · junio: vilanos y abejas
+  { rain: "soft", items: [["drift", "cloud", [80, 120], [26, 40], 3, "#8a7a5a", "--x:0;--y:#3-14%"], ["splash", "splash", [8, 13], [1.6, 2.6], 8, "#8d9ab0", "--x:#0-100%;--y:#93-98%"], ["ripple", "ripple", [30, 50], [2.2, 3.2], 6, "#8d9ab0", "--y:#84-95%"], stars(3)] }, // 10 · julio: noche de lluvia
+  { day: true,  items: [sun, cloud(3), leaves(6, ORO), ["flock", "bird", [16, 26], [16, 16], 4, TINTA, "--x:#0-30%;--y:#5-14%;animation-delay:-#0-3s"], wind(1)] }, // 11 · agosto: las hojas doran
+  { items: [stars(14), flies(5), leaves(9, OCRE), ["fall", "acorn", [12, 18], [8, 12], 2, "#6b5537"], wind(2)] },                             // 12 · octubre otra vez: ¡un año!
+];
+function sky(n){
+  const k = SKY[n]; if (!k) return "";
+  let seed = n * 7919; const rnd = () => (seed = (seed * 48271) % 2147483647) / 2147483647;
+  const R = (a, b) => a + rnd() * (b - a), pick = c => Array.isArray(c) ? c[Math.floor(rnd() * c.length)] : c;
+  const X = () => rnd() < .65 ? (rnd() < .5 ? R(0, 11) : R(82, 96)) : R(11, 82);  // casi todo por los márgenes, no detrás de la foto
+  const fill = t => (t || "").replace(/#(-?\d+)-(-?\d+)/g, (_, a, b) => R(+a, +b).toFixed(0));  // "#4-26" → un número entre 4 y 26
+  const one = ([cls, id, w, d, , c, extra]) => {
+    const dur = R(d[0], d[1]), x = id === "drop" ? R(0, 100) : X();
+    return `<svg class="${cls}" style="--x:${x.toFixed(1)}%;--w:${R(w[0], w[1]).toFixed(0)}px;--dx:${R(-8, 16).toFixed(0)}vw;--r:${R(120, 620).toFixed(0)}deg;--c:${pick(c)};` +
+      `animation-duration:${dur.toFixed(1)}s;animation-delay:-${R(0, dur).toFixed(1)}s;${fill(extra)}"><use href="#s-${id}"/></svg>`;
+  };
+  const drops = (q, w, len, d, o) => [...Array(q)].map(() =>
+    `<svg style="--x:${R(0, 100).toFixed(1)}%;--w:${R(w[0], w[1]).toFixed(1)}px;--len:${R(len[0], len[1]).toFixed(0)};--d:${R(d[0], d[1]).toFixed(2)}s;--dl:-${R(0, 3).toFixed(2)}s;--o:${o}"><use href="#s-drop"/></svg>`).join("");
+  const rain = k.rain === "storm"
+    ? `<div class="rainlayer storm">${drops(40, [1.2, 1.8], [14, 20], [1.6, 2.2], .5)}</div><div class="rainlayer storm">${drops(30, [2.2, 3.2], [22, 32], [1, 1.35], .95)}</div>`
+    : k.rain === "soft"
+    ? `<div class="rainlayer">${drops(34, [1.1, 1.6], [12, 18], [2.4, 3.2], .42)}</div><div class="rainlayer">${drops(20, [1.8, 2.6], [18, 26], [1.7, 2.3], .8)}</div>`
+    : "";
+  const flash = k.items.some(it => it[0] === "flash") ? `<div class="flash" style="--d:${R(8, 11).toFixed(1)}s"></div>` : "";
+  // la luna crece de noche en noche: creciente, media, gibosa… y llena en el último capítulo
+  const PHASE = { 4: "moon", 6: "moon-half", 8: "moon-gibbous", 12: "moon-full" };
+  const moon = PHASE[n] && !k.rain ? `<svg class="moon" style="--x:${R(70, 82).toFixed(0)}%;--y:${R(4, 8).toFixed(0)}%;--w:52px;--c:#8a6a1e"><use href="#s-${PHASE[n]}"/></svg>` : "";
+  // en mayo, siete estrellas dibujan la Osa Mayor (una osa, en un libro de un oso)
+  const DIPPER = [[6, 8], [12, 9.5], [18, 10], [24, 12.5], [30, 10], [34, 16], [27, 19]];
+  const bear = n === 8 ? DIPPER.map(([x, y]) => `<svg class="bear" style="--x:${x}%;--y:${y}%;--w:9px;--c:#6b5537;animation-duration:${R(2.5, 4).toFixed(1)}s;animation-delay:-${R(0, 3).toFixed(1)}s"><use href="#s-spark"/></svg>`).join("") : "";
+  const extras = (n === 1 ? `<svg class="contrary" style="--x:0;--y:7%;--w:22px;--c:#6b5537;animation-duration:17s;animation-delay:-5s"><use href="#s-bird"/></svg>` : "") +
+    (n === 12 ? `<svg class="rise" style="--x:88%;--w:26px;--c:#6b5537;animation-duration:26s;animation-delay:-9s"><use href="#s-balloon"/></svg>` : "");
+  return `<div class="sky" aria-hidden="true">${flash}${rain}${moon}${bear}${extras}${k.items.map(it => [...Array(it[4])].map(() => one(it)).join("")).join("")}</div>`;
+}
+const skyOf = n => sky(n);
+
+// El personaje que presenta cada capítulo en la hoja (viñetas de Shepard)
+// …y en las hojas, un cuentito: Pooh sale a buscar lo más dulce del Bosque
+const LEAF_ART = [null, ["092", 90], ["101", 190], ["166-2", 96], ["117", 190], ["108", 190], ["121", 200], ["123", 190], ["103", 190], ["094-1", 130], ["174", 200], ["60", 190], ["42", 170]];
+const TALE = [null,
+  "Pooh pensó, y pensó, y pensó qué sería lo más dulce del Bosque.",
+  "Bajo la tormenta, Piglet y Eeyore no sabían nada de dulzuras.",
+  "Búho dijo palabras muy largas; ninguna era «miel».",
+  "Kanga y Roo pasaron de prisa; no hubo tiempo de preguntar.",
+  "Conejo tenía un plan. Conejo siempre tiene un plan.",
+  "Christopher Robin solo sonrió: «Ya lo sabrás».",
+  "Piglet brincó de alegría sin saber todavía por qué.",
+  "Eeyore suspiró: «Lo más dulce no se encuentra… se celebra».",
+  "Pooh abrazó su olla de miel. Pero no, no era eso.",
+  "Al atardecer lo entendieron un poquito más.",
+  "Eeyore corrió, por primera vez en su vida, a dar una noticia.",
+  "Y en el Bosque todos se fueron juntando."];
+const TALE_PRO = "Una mañana, Pooh y Piglet salieron a buscar lo más dulce del Bosque.";
+const TALE_EPI = "Porque lo más dulce del Bosque cumplía un año.";
+
+document.getElementById("tale-pro").textContent = TALE_PRO;
+
+let opened = false;  // la tapa del libro: hasta que se abre, nada pasa de hoja
+
+// Cada capítulo son dos hojas: la que lo presenta (personaje y cuentito) y la de la foto
+const deck = document.getElementById("deck");
+const screen = (inner, cls, label, page, month) => {
+  const sc = document.createElement("section"); sc.className = "screen";
+  sc.innerHTML = `<div class="front slide ${cls}" data-label="${label}" data-page="${page}"${month ? ` data-month="${month}"` : ""}>${inner}</div><div class="back"></div><div class="shade"></div>`;
+  deck.appendChild(sc); return sc;
+};
+const leafHTML = (art, w, title, tale) =>
+  `<div class="in"><img class="art" src="pooh/${art}.webp" alt="" style="--aw:${w}px"><span>${title}</span><p class="tale">${tale}</p></div><i class="go"><b>↓</b> desliza o toca para pasar la hoja</i>`;
+MONTHS.forEach((cap, i) => {
+  const n = i + 1, word = n === 1 ? "mes" : "meses", page = n + 1;
+  screen(leafHTML(LEAF_ART[n][0], LEAF_ART[n][1], "Capítulo " + ROMAN[i], TALE[n]), "leafpage", "Mes " + n + " de 12", page, n);
+  const sc = screen(`${skyOf(n)}<div class="inner">
+    <div><div class="chapter">Capítulo ${ROMAN[i]}</div><div class="inwhich">${n === 1 ? "El primer mes" : n === 12 ? "Casi un año" : "A los " + n + " meses"}</div></div>
+    <figure class="plate"><div class="frame">${[1, 2, 3, 4].map(k => `<img class="${k === 1 ? "on" : ""}" alt="Azulita a los ${n} ${word}" src="img/mes-${String(n).padStart(2, "0")}${k === 1 ? "" : "-" + k}.jpg">`).join("")}</div>
+    <button class="arrow l" type="button" aria-label="Foto anterior"><svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19"/></svg></button>
+    <button class="arrow r" type="button" aria-label="Siguiente foto"><svg viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19"/></svg></button>
+    ${VIGNETTES[i % VIGNETTES.length]}</figure>
+    <div class="dots" aria-hidden="true"></div>
+    <figcaption class="cap">${cap}</figcaption>
+    </div>
+    <div class="folio">— ${n} —</div><i class="go page" aria-hidden="true"><b>↓</b></i>`, SKY[n].day ? "" : "night", "Mes " + n + " de 12", page, n);
+  carousel(sc.querySelector(".plate"), sc.querySelector(".dots"), n);
+});
+
+// El carrusel de cada lámina: hasta cuatro fotos; flechas, puntitos, y deslizar o tocar sobre la foto
+function carousel(plate, dots, n){
+  const imgs = [...plate.querySelectorAll(".frame img")];
+  let at = 0;
+  const alive = () => imgs.filter(im => !im.classList.contains("gone"));
+  const draw = () => {
+    const a = alive();
+    a.forEach((im, k) => im.classList.toggle("on", k === at));
+    dots.innerHTML = a.map((_, k) => `<i class="${k === at ? "on" : ""}"></i>`).join("");
+    plate.classList.toggle("single", a.length < 2);
+  };
+  const step = d => { const a = alive(); if (a.length < 2) return; at = (at + d + a.length) % a.length; draw(); };
+  imgs.forEach((im, k) => im.addEventListener("error", () => {
+    im.classList.add("gone");
+    if (k === 0 && alive().length === 0) im.parentElement.textContent = "foto del mes " + n;
+    draw();
+  }));
+  plate.querySelector(".arrow.l").addEventListener("click", e => { e.stopPropagation(); step(-1); });
+  plate.querySelector(".arrow.r").addEventListener("click", e => { e.stopPropagation(); step(1); });
+  let x0 = null;
+  plate.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  plate.addEventListener("touchend", e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 36) step(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  plate.addEventListener("click", e => { e.stopPropagation(); if (!e.target.closest(".arrow")) step(1); });
+  draw();
+}
+// Última página: el final
+screen(leafHTML("26", 110, "Epílogo", TALE_EPI), "leafpage", "Continuará", 14);
+screen(`<div class="forest" aria-hidden="true"></div>
+    <div class="inner">
+      <div><div class="chapter">Epílogo</div><div class="inwhich">En el que damos las gracias</div></div>
+      <img class="friends" src="pooh/172.webp" alt="Pooh y sus amigos del bosque">
+      <p class="end">Gracias por acompañarnos este año tan dulce.</p>
+      <div class="rule">❧</div>
+      <div class="fin"><small>esta historia</small>Continuará…</div>
+    </div>`, "last", "Continuará", 14);
+
+// Cintilla: 15 páginas lógicas (portada, prólogo, 12 capítulos, epílogo)
+const screens = [...deck.children], pots = document.getElementById("pots"), lbl = document.getElementById("lbl");
+const PAGES = 15;
+for (let i = 0; i < PAGES; i++) { const d = document.createElement("i"); if (i < 2 || i === PAGES - 1) d.className = "info"; pots.appendChild(d); }
+const ds = [...pots.children];
+screens.forEach((sc, i) => { sc.style.zIndex = screens.length - i; });
+
+// El libro: pasar la hoja (adelante o atrás) con un toque, deslizando o con la rueda; una hoja a la vez
+let cur = 0, busy = false;
+const frontOf = i => screens[i].firstElementChild;
+function settle(){
+  screens.forEach((sc, i) => {
+    sc.classList.toggle("far", Math.abs(i - cur) > 1);
+    sc.classList.toggle("turned", i < cur);
+    sc.firstElementChild.classList.toggle("live", i === cur);
+  });
+  const f = frontOf(cur), page = +f.dataset.page, m = f.dataset.month;
+  lbl.innerHTML = m ? `Mes <b>${m}</b> de doce` : f.dataset.label;
+  ds.forEach((d, j) => d.classList.toggle("on", j <= page));
+  document.body.classList.toggle("chapters", page >= 2);  // las abejas se van suavemente al empezar los capítulos
+}
+function go(dir){
+  if (busy || !opened) return;
+  const n = cur + dir;
+  if (n < 0 || n >= screens.length) return;
+  busy = true;
+  screens[n].classList.remove("far"); screens[cur].classList.remove("far");
+  screens[n].firstElementChild.classList.add("live");  // su cielo ya se mueve mientras la hoja gira
+  if (dir > 0) {
+    screens[n].classList.add("under"); void screens[n].offsetWidth; screens[n].classList.remove("under");  // la sombra del lomo se retira mientras gira
+    screens[cur].classList.add("turned");
+  } else {
+    screens[n].classList.remove("turned");
+  }
+  cur = n;
+  frontOf(cur).scrollTop = 0;
+  setTimeout(() => { busy = false; settle(); }, 1200);
+  const f = frontOf(cur), page = +f.dataset.page, m = f.dataset.month;
+  lbl.innerHTML = m ? `Mes <b>${m}</b> de doce` : f.dataset.label;
+  ds.forEach((d, j) => d.classList.toggle("on", j <= page));
+}
+const canScroll = (el, dir) => dir > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 2 : el.scrollTop > 2;
+let wheelLock = 0;
+deck.addEventListener("wheel", e => {
+  if (!opened || busy || Math.abs(e.deltaY) < 8 || Date.now() < wheelLock) return;
+  const f = frontOf(cur), dir = e.deltaY > 0 ? 1 : -1;
+  if (canScroll(f, dir)) return;  // la página aún tiene texto por ver: que se desplace
+  wheelLock = Date.now() + 1500; go(dir);
+}, { passive: true });
+let t0 = null, moved = false;
+deck.addEventListener("touchstart", e => { const t = e.touches[0]; t0 = { x: t.clientX, y: t.clientY, s: frontOf(cur).scrollTop }; moved = false; }, { passive: true });
+deck.addEventListener("touchmove", e => { if (!t0) return; const t = e.touches[0]; if (Math.hypot(t.clientX - t0.x, t.clientY - t0.y) > 10) moved = true; }, { passive: true });
+deck.addEventListener("touchend", e => {
+  if (!t0) return;
+  const t = e.changedTouches[0], dx = t.clientX - t0.x, dy = t.clientY - t0.y, f = frontOf(cur), scrolled = Math.abs(f.scrollTop - t0.s) > 4;
+  t0 = null;
+  if (e.target.closest(".plate")) return;  // sobre la foto, el gesto es del carrusel
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) go(dx < 0 ? 1 : -1);           // deslizar a un lado
+  else if (!scrolled && Math.abs(dy) > 50 && Math.abs(dy) > Math.abs(dx)) go(dy < 0 ? 1 : -1); // deslizar arriba/abajo
+}, { passive: true });
+deck.addEventListener("click", e => {
+  if (moved || e.target.closest("a, button, input, label, .count, .plate")) return;
+  go(1);  // un toque en cualquier parte pasa la hoja
+});
+document.addEventListener("keydown", e => {
+  if (!opened || !sheet.hidden || e.target.tagName === "INPUT") return;
+  if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) { e.preventDefault(); go(1); }
+  if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key)) { e.preventDefault(); go(-1); }
+});
+settle();
+
+// Invitado y confirmación
+const key = decodeURIComponent(location.hash.slice(1)).toLowerCase();
+const guest = GUESTS[key] || null;
+document.getElementById("hello").textContent = guest ? "Querida " + guest.name + ":" : "";
+// Su nombre: primero Azulita; a los cuatro segundos, como por arte de magia, Daniela… y de vuelta
+const nameEl = document.querySelector("h1.title .name");
+let fullName = false;
+function swapName(){
+  nameEl.classList.add("veil");
+  setTimeout(() => { fullName = !fullName; nameEl.textContent = fullName ? "Daniela" : "Azulita"; nameEl.classList.remove("veil"); }, 900);
+  setTimeout(swapName, fullName ? 4500 : 6500);
+}
+function startName(){ setTimeout(swapName, 4000); }
+
+let people = guest ? Math.min(6, Math.max(1, guest.n)) : 0;
+const count = document.getElementById("count"), yes = document.getElementById("yes"), no = document.getElementById("no");
+const hint = document.getElementById("hint"), yesT = document.getElementById("yes-t"), sent = document.getElementById("sent");
+const whoEl = document.getElementById("who");
+if (guest) whoEl.value = guest.name;
+const who = () => whoEl.value.trim();
+const wa = t => "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(t);
+const pl = n => n + (n === 1 ? " persona" : " personas");
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+let hintTimer = 0;
+function showHint(text){
+  hint.textContent = text; hint.classList.add("on");
+  clearTimeout(hintTimer); hintTimer = setTimeout(() => hint.classList.remove("on"), 3200);
+}
+function render(){
+  [...count.children].forEach((b, i) => b.setAttribute("aria-pressed", i + 1 === people));
+  yesT.textContent = people ? "Confirmar · " + pl(people) : "Elige cuántos vienen";
+  yes.classList.toggle("ready", !!people); yes.classList.toggle("muted", !people);
+}
+for (let i = 1; i <= 6; i++) {
+  const b = document.createElement("button");
+  b.type = "button"; b.innerHTML = `<svg aria-hidden="true"><use href="#s-hunny"/></svg><b>${i}</b>`; b.style.setProperty("--i", i); b.setAttribute("aria-label", pl(i));
+  b.addEventListener("click", () => { people = i; hint.classList.remove("on"); buzz(12); render(); });
+  count.appendChild(b);
+}
+// Sin número elegido: la fila tiembla, los números saltan y aparece la pista (no se abre nada)
+function nudge(){
+  buzz([30, 40, 30]);
+  count.classList.remove("shake"); yes.classList.remove("nudge"); void count.offsetWidth;
+  count.classList.add("shake"); yes.classList.add("nudge");
+  showHint("Primero dinos cuántos vienen ↑");
+}
+count.addEventListener("animationend", () => { count.classList.remove("shake"); yes.classList.remove("nudge"); });
+// La hoja de confirmación: se ve el mensaje y se manda con un toque
+const sheet = document.getElementById("sheet"), go_wa = document.getElementById("sheet-go");
+let going = true, lastFocus = null;
+function openSheet(isGoing){
+  going = isGoing; lastFocus = document.activeElement;
+  const msg = going ? "¡Hola! Somos " + who() + ": confirmamos " + pl(people) + " para el cumple de Azulita."
+                    : "¡Hola! Somos " + who() + ": esta vez no podremos ir al cumple de Azulita. ¡Un abrazo!";
+  document.getElementById("sheet-k").textContent = going ? "Confirmar asistencia" : "Avisar que no podrán";
+  document.getElementById("sheet-t").textContent = going ? "¡Qué alegría que vengan!" : "Los vamos a extrañar";
+  document.getElementById("sheet-who").textContent = who() + (going ? " · " + pl(people) : "");
+  document.getElementById("sheet-msg").innerHTML = msg.replace(/[&<>]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[ch]).replace("Azulita", '<span class="nm">Azulita</span>');
+  go_wa.href = wa(msg);
+  sheet.hidden = false;
+  requestAnimationFrame(() => requestAnimationFrame(() => sheet.classList.add("open")));
+  sheet.querySelector(".sheet-card").focus({ preventScroll: true });
+}
+function closeSheet(){
+  sheet.classList.remove("open");
+  setTimeout(() => { sheet.hidden = true; }, 400);
+  if (lastFocus) lastFocus.focus({ preventScroll: true });
+}
+sheet.querySelectorAll("[data-close]").forEach(el => el.addEventListener("click", closeSheet));
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !sheet.hidden) closeSheet(); });
+go_wa.addEventListener("click", () => {
+  document.getElementById("sent-t").textContent = going ? "¡Gracias! Los esperamos." : "Gracias por avisarnos.";
+  sent.classList.remove("on"); void sent.offsetWidth; sent.classList.add("on");
+  if (going) { yes.classList.add("sent-ok"); yesT.textContent = "Enviado · cambiar"; }
+  closeSheet();
+});
+function needName(){
+  if (who()) return false;
+  buzz([30, 40, 30]);
+  const l = whoEl.parentElement; l.classList.remove("shake"); void l.offsetWidth; l.classList.add("shake");
+  showHint("¿De parte de quién? Escribe tu nombre ↑"); whoEl.focus({ preventScroll: true });
+  return true;
+}
+yes.addEventListener("click", () => { if (!people) { nudge(); return; } if (needName()) return; openSheet(true); });
+no.addEventListener("click", () => { if (needName()) return; openSheet(false); });
+whoEl.addEventListener("input", () => hint.classList.remove("on"));
+whoEl.addEventListener("keydown", e => { if (e.key === "Enter") whoEl.blur(); });
+render();
+
+// Cuenta regresiva (sin segundos)
+function tick(){
+  const s = Math.max(0, Math.floor((PARTY - Date.now()) / 1000));
+  const v = [Math.floor(s / 86400), Math.floor(s % 86400 / 3600), Math.floor(s % 3600 / 60)];
+  document.querySelectorAll("#cd b").forEach((b, i) => b.textContent = String(v[i]).padStart(2, "0"));
+}
+tick(); setInterval(tick, 30000);
+
+// Música: arranca con el toque que abre la tapa (los celulares no dejan sonar antes de un toque) y sigue sola
+const music = document.getElementById("music");
+async function play(){ try { await music.play(); } catch (e) { document.addEventListener("pointerdown", play, { once: true }); } }
+
+// La tapa: cerrada al cargar (sin scroll); al tocarla se abre y se retira
+const book = document.getElementById("book"), cover3d = document.getElementById("cover3d");
+document.documentElement.classList.add("closed");
+function openBook(){
+  if (opened) return; opened = true;
+  book.classList.add("open"); play(); startName();
+  busy = true; setTimeout(() => { busy = false; }, 2400);
+  const done = () => { book.remove(); };
+  cover3d.addEventListener("transitionend", done, { once: true });
+  setTimeout(() => { if (book.isConnected) done(); }, 2600);
+}
+cover3d.addEventListener("click", openBook);
+// el gesto de deslizar (dedo o rueda) también abre la tapa: así no importa si pican o deslizan
+book.addEventListener("wheel", e => { if (e.deltaY > 4) openBook(); }, { passive: true });
+let ty = null;
+book.addEventListener("touchstart", e => { ty = e.touches[0].clientY; }, { passive: true });
+book.addEventListener("touchmove", e => { if (ty !== null && ty - e.touches[0].clientY > 18) openBook(); }, { passive: true });
+document.addEventListener("keydown", e => { if (!opened && ["ArrowDown", "PageDown", " "].includes(e.key)) { e.preventDefault(); openBook(); } });
+cover3d.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openBook(); } });
+</script>
